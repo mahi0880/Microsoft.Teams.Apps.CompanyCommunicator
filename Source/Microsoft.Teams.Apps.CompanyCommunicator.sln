@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Teams.Apps.Compan
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Teams.Apps.CompanyCommunicator.Test", "Test\CompanyCommunicator.Test\Microsoft.Teams.Apps.CompanyCommunicator.Test.csproj", "{4182F62C-B7FF-4251-8123-CD442C477FB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Teams.App.CompanyCommunicator.Common.Test", "Test\CompanyCommunicator.Common.Test\Microsoft.Teams.App.CompanyCommunicator.Common.Test.csproj", "{B30048CC-3631-49F1-AF01-6A58F645C6EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Teams.App.CompanyCommunicator.Common.Test", "Test\CompanyCommunicator.Common.Test\Microsoft.Teams.App.CompanyCommunicator.Common.Test.csproj", "{B30048CC-3631-49F1-AF01-6A58F645C6EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
