@@ -12,6 +12,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     using Microsoft.Bot.Builder.Teams;
     using Microsoft.Bot.Schema;
     using Microsoft.Bot.Schema.Teams;
+    using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.NotificationData;
 
     /// <summary>
     /// Company Communicator User Bot.
@@ -34,10 +35,22 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            string autoReplyMessage = "Thank you for your message. Please reach out to feedback@hearst.com with any questions. ";
+            string autoReplyMessage = "Thank you for your message. Please reach out to mailto:feedback@hearst.com with any questions. ";
             await turnContext.SendActivityAsync(autoReplyMessage);
         }
 
+        protected override async Task OnMessageReactionActivityAsync(
+    ITurnContext<IMessageReactionActivity> turnContext,
+    CancellationToken cancellationToken)
+        {
+            await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
+            await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
+
+            string newReaction = $"You reacted with to the following message: '{turnContext.Activity.ReplyToId}' in the conversation ID: '{turnContext.Activity.Conversation.Id}'.";
+            Activity replyActivity = MessageFactory.Text(newReaction);
+            await turnContext.SendActivityAsync(replyActivity, cancellationToken);
+
+        }
 
         /// <summary>
         /// Invoked when a conversation update activity is received from the channel.
