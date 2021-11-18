@@ -35,6 +35,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Teams.Apps.Compan
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Teams.App.CompanyCommunicator.Common.Test", "Test\CompanyCommunicator.Common.Test\Microsoft.Teams.App.CompanyCommunicator.Common.Test.csproj", "{B30048CC-3631-49F1-AF01-6A58F645C6EB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "manifest", "manifest", "{486833C4-0278-4FFC-985E-007DE4A5FAFD}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\Manifest\color.png = ..\..\Manifest\color.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
