@@ -35,7 +35,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            string autoReplyMessage = "Thank you for your message. Please reach out to mailto:feedback@hearst.com with any questions. ";
+            string autoReplyMessage = "Thank you for your message. Please reach out to <a href='mailto:feedback@hearst.com'>mailto:feedback@hearst.com</a> with any questions.";
             await turnContext.SendActivityAsync(autoReplyMessage);
         }
 
