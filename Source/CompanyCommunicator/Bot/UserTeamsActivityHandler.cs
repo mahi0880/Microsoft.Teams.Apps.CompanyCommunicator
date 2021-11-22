@@ -47,16 +47,17 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     ITurnContext<IMessageReactionActivity> turnContext,
     CancellationToken cancellationToken)
         {
+            
             var dictionary = new Dictionary<string, string>();
-            dictionary.Add(turnContext.Activity.ReplyToId.ToString(), turnContext.Activity.Conversation.Id.ToString());
-            telemetry.TrackEvent("Company Communicator",dictionary);
+            dictionary.Add(turnContext.Activity.Conversation.Id.ToString(), turnContext.Activity.From.Name);
+            telemetry.TrackEvent(turnContext.Activity.Conversation.Id.ToString(), dictionary);
 
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
 
-            string newReaction = $"You reacted with to the following message: '{turnContext.Activity.Recipient.Name}' in the conversation ID: '{turnContext.Activity.Conversation.Name}'.";
-            Activity replyActivity = MessageFactory.Text(newReaction);
-            await turnContext.SendActivityAsync(replyActivity, cancellationToken);
+            //string newReaction = $"You reacted with to the following message: '{turnContext.Activity.From.Name }' in the conversation ID: '{turnContext.Activity.Conversation.Id}'.";
+            //Activity replyActivity = MessageFactory.Text(newReaction);
+            //await turnContext.SendActivityAsync(replyActivity, cancellationToken);
 
         }
 
