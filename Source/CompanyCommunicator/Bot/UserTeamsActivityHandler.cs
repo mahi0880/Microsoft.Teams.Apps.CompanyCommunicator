@@ -43,10 +43,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     ITurnContext<IMessageReactionActivity> turnContext,
     CancellationToken cancellationToken)
         {
+
+
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
 
-            string newReaction = $"You reacted with to the following message: '{turnContext.Activity.ReplyToId}' in the conversation ID: '{turnContext.Activity.Conversation.Id}'.";
+            string newReaction = $"User: '{turnContext.Activity.Recipient.Name}' reacted in the conversation ID: '{turnContext.Activity.Conversation.Name}'.";
             Activity replyActivity = MessageFactory.Text(newReaction);
             await turnContext.SendActivityAsync(replyActivity, cancellationToken);
 
