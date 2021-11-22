@@ -13,6 +13,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     using Microsoft.Bot.Schema;
     using Microsoft.Bot.Schema.Teams;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.NotificationData;
+    using Microsoft.ApplicationInsights;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Company Communicator User Bot.
@@ -20,6 +22,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     /// </summary>
     public class UserTeamsActivityHandler : TeamsActivityHandler
     {
+        private TelemetryClient telemetry = new TelemetryClient();
+
         private static readonly string TeamRenamedEventType = "teamRenamed";
 
         private readonly TeamsDataCapture teamsDataCapture;
@@ -43,12 +47,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     ITurnContext<IMessageReactionActivity> turnContext,
     CancellationToken cancellationToken)
         {
-
+            var dictionary = new Dictionary<string, string>();
+            dictionary.Add(turnContext.Activity.ReplyToId.ToString(), turnContext.Activity.Conversation.Id.ToString());
+            telemetry.TrackEvent("Company Communicator",dictionary);
 
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
 
-            string newReaction = $"User: '{turnContext.Activity.Recipient.Name}' reacted in the conversation ID: '{turnContext.Activity.Conversation.Name}'.";
+            string newReaction = $"You reacted with to the following message: '{turnContext.Activity.Recipient.Name}' in the conversation ID: '{turnContext.Activity.Conversation.Name}'.";
             Activity replyActivity = MessageFactory.Text(newReaction);
             await turnContext.SendActivityAsync(replyActivity, cancellationToken);
 
