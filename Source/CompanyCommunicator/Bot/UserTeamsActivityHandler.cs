@@ -65,7 +65,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 
             try
             {
-                var result = await this.sentNotificationDataRepository.GetWithFilterAsync($"RowKey eq '{userId}' and MessageId eq '{messageId}'");
+                var result = await this.sentNotificationDataRepository.GetWithFilterAsync($"UserId eq '{userId}' and MessageId eq '{messageId}'");
                 var entity = result.First();
                 entity.MessageReaction++;
                 await this.sentNotificationDataRepository.InsertOrMergeAsync(entity);
@@ -77,7 +77,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             }
 
             Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
-            telemetryProperties.Add("User Id", userId);
+            telemetryProperties.Add("AAD object", turnContext.Activity.From.AadObjectId);
+            telemetryProperties.Add("From Id", userId);
             telemetryProperties.Add("ReplyToId", messageId);
             this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
 
