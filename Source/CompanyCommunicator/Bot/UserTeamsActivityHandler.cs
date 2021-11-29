@@ -42,6 +42,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             this.sentNotificationDataRepository = sentNotificationDataRepository ?? throw new ArgumentNullException(nameof(sentNotificationDataRepository));
         }
 
+        public override Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        {
+            string newNotification = $"You're receiving an notification, {turnContext.Activity.Text}";
+            turnContext.SendActivityAsync(newNotification);
+            return base.OnTurnAsync(turnContext, cancellationToken);
+        }
+
+
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             string autoReplyMessage = "Thank you for your message. Please reach out to <a href='mailto:feedback@hearst.com'>feedback@hearst.com</a> with any questions.";
@@ -69,7 +77,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             }
 
             Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
-
             telemetryProperties.Add("User Id", userId);
             telemetryProperties.Add("ReplyToId", messageId);           
             this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
