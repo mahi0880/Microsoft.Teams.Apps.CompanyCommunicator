@@ -54,8 +54,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             telemetryProperties.Add("Id", turnContext.Activity.Id);
             telemetryProperties.Add("ReplyToId", turnContext.Activity.ReplyToId);
             telemetryProperties.Add("ChannelId", turnContext.Activity.ChannelId);
-            
-
+            telemetryProperties.Add("ServiceUrl", turnContext.Activity.ServiceUrl);
+            telemetryProperties.Add("Recipient.Name", turnContext.Activity.Recipient.Name);
+            telemetryProperties.Add("Recipient.ID", turnContext.Activity.Recipient.Id);
             telemetry.TrackEvent(turnContext.Activity.ReplyToId, telemetryProperties);
 
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
