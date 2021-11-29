@@ -90,10 +90,18 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Services.Teams
                     var policy = this.GetRetryPolicy(maxAttempts, log);
                     try
                     {
+
                         // Send message.
-                        await policy.ExecuteAsync(async () => await turnContext.SendActivityAsync(message));
+                        string messageId = string.Empty;
+                        await policy.ExecuteAsync(async () =>
+                        {
+
+                            var responsed = await turnContext.SendActivityAsync(message);
+                            messageId = responsed.Id;
+                            });
 
                         // Success.
+                        response.MessageId = messageId;
                         response.ResultType = SendMessageResult.Succeeded;
                         response.StatusCode = (int)HttpStatusCode.Created;
                         response.AllSendStatusCodes += $"{(int)HttpStatusCode.Created},";

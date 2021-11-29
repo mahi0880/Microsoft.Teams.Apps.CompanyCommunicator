@@ -195,5 +195,15 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotif
         /// only the final one will be stored here.
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Gets or sets ID of the message that being sent via the bot.
+        /// </summary>
+        public string MessageId { get; set; }
+
+        /// <summary>
+        /// Gets or sets User Reaction on the notification.
+        /// </summary>
+        public int MessageReaction { get; set; }
     }
 }
