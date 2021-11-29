@@ -52,8 +52,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
             telemetryProperties.Add("username", turnContext.Activity.From.Name);
             telemetryProperties.Add("Id", turnContext.Activity.ReplyToId);
+            telemetryProperties.Add("ReplyToId", turnContext.Activity.ReplyToId);
 
-            telemetry.TrackEvent(turnContext.Activity.Conversation.Id, telemetryProperties);
+            telemetry.TrackEvent(turnContext.Activity.ReplyToId, telemetryProperties);
 
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
 
