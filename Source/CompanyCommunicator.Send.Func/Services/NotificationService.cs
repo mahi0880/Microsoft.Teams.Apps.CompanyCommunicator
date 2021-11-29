@@ -105,6 +105,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func.Services
 
             // Update notification.
             notification.TotalNumberOfSendThrottles = totalNumberOfSendThrottles;
+            notification.MessageId = messageId;
             notification.SentDate = sentDateTime;
             notification.IsStatusCodeFromCreateConversation = false;
             notification.StatusCode = (int)statusCode;
