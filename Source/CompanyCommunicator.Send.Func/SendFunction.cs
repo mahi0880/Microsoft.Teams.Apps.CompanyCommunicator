@@ -112,6 +112,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                     await this.notificationService.UpdateSentNotification(
                         notificationId: messageContent.NotificationId,
                         recipientId: messageContent.RecipientData.RecipientId,
+                        messageId: string.Empty,
                         totalNumberOfSendThrottles: 0,
                         statusCode: SentNotificationDataEntity.NotSupportedStatusCode,
                         allSendStatusCodes: $"{SentNotificationDataEntity.NotSupportedStatusCode},",
@@ -133,6 +134,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                     await this.notificationService.UpdateSentNotification(
                         notificationId: messageContent.NotificationId,
                         recipientId: messageContent.RecipientData.RecipientId,
+                        messageId: string.Empty,
                         totalNumberOfSendThrottles: 0,
                         statusCode: SentNotificationDataEntity.FinalFaultedStatusCode,
                         allSendStatusCodes: $"{SentNotificationDataEntity.FinalFaultedStatusCode},",
@@ -183,6 +185,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                 await this.notificationService.UpdateSentNotification(
                     notificationId: messageContent.NotificationId,
                     recipientId: messageContent.RecipientData.RecipientId,
+                    messageId: string.Empty,
                     totalNumberOfSendThrottles: 0,
                     statusCode: statusCode,
                     allSendStatusCodes: $"{statusCode},",
@@ -219,6 +222,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
             await this.notificationService.UpdateSentNotification(
                     notificationId: messageContent.NotificationId,
                     recipientId: messageContent.RecipientData.RecipientId,
+                    messageId: sendMessageResponse.MessageId,
                     totalNumberOfSendThrottles: sendMessageResponse.TotalNumberOfSendThrottles,
                     statusCode: sendMessageResponse.StatusCode,
                     allSendStatusCodes: sendMessageResponse.AllSendStatusCodes,

@@ -90,6 +90,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func.Services
         public async Task UpdateSentNotification(
             string notificationId,
             string recipientId,
+            string messageId,
             int totalNumberOfSendThrottles,
             int statusCode,
             string allSendStatusCodes,
