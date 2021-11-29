@@ -204,6 +204,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotif
         /// <summary>
         /// Gets or sets User Reaction on the notification.
         /// </summary>
-        public string MessageReaction { get; set; }
+        public int MessageReaction { get; set; }
     }
 }

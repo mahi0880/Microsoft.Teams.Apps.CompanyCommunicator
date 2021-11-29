@@ -15,6 +15,8 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.NotificationData;
     using Microsoft.ApplicationInsights;
     using System.Collections.Generic;
+    using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotificationData;
+    using System.Linq;
 
     /// <summary>
     /// Company Communicator User Bot.
@@ -27,14 +29,17 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
         private static readonly string TeamRenamedEventType = "teamRenamed";
 
         private readonly TeamsDataCapture teamsDataCapture;
+        private readonly ISentNotificationDataRepository sentNotificationDataRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserTeamsActivityHandler"/> class.
         /// </summary>
         /// <param name="teamsDataCapture">Teams data capture service.</param>
-        public UserTeamsActivityHandler(TeamsDataCapture teamsDataCapture)
+        /// <param name="sentNotificationDataRepository">Sent notification data.</param>
+        public UserTeamsActivityHandler(TeamsDataCapture teamsDataCapture, ISentNotificationDataRepository sentNotificationDataRepository)
         {
             this.teamsDataCapture = teamsDataCapture ?? throw new ArgumentNullException(nameof(teamsDataCapture));
+            this.sentNotificationDataRepository = sentNotificationDataRepository ?? throw new ArgumentNullException(nameof(sentNotificationDataRepository));
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -47,23 +52,29 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     ITurnContext<IMessageReactionActivity> turnContext,
     CancellationToken cancellationToken)
         {
+            string userId = turnContext.Activity.From.Id;
+            string messageId = turnContext.Activity.ReplyToId;
 
-            
+            try
+            {
+                var result = await this.sentNotificationDataRepository.GetWithFilterAsync($"RowKey eq '{userId}' and MessageId eq '{messageId}'");
+                var entity = result.First();
+                entity.MessageReaction++;
+                await this.sentNotificationDataRepository.InsertOrMergeAsync(entity);
+            }
+            catch (Exception ex)
+            {
+
+                await turnContext.SendActivityAsync($"failed to interact with the notification repo, {ex.Message}");
+            }
+
             Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
-            telemetryProperties.Add("username", turnContext.Activity.From.Name);
-            telemetryProperties.Add("Id", turnContext.Activity.Id);
-            telemetryProperties.Add("ReplyToId", turnContext.Activity.ReplyToId);
-            telemetryProperties.Add("ChannelId", turnContext.Activity.ChannelId);
-            telemetryProperties.Add("ServiceUrl", turnContext.Activity.ServiceUrl);
-            telemetryProperties.Add("Recipient.Name", turnContext.Activity.Recipient.Name);
-            telemetryProperties.Add("Recipient.ID", turnContext.Activity.Recipient.Id);
-            telemetry.TrackEvent(turnContext.Activity.ReplyToId, telemetryProperties);
+
+            telemetryProperties.Add("User Id", userId);
+            telemetryProperties.Add("ReplyToId", messageId);           
+            this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
 
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
-
-            //string newReaction = $"You reacted with to the following message: '{turnContext.Activity.ReplyToId}' in the conversation Name: '{turnContext.Activity.Conversation.Name}'.";
-            //Activity replyActivity = MessageFactory.Text(newReaction);
-            //await turnContext.SendActivityAsync(replyActivity, cancellationToken);
 
         }
 
