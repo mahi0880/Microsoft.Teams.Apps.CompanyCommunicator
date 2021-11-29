@@ -48,6 +48,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     CancellationToken cancellationToken)
         {
 
+            ]
             Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
             telemetryProperties.Add("username", turnContext.Activity.From.Name);
             telemetryProperties.Add("Id", turnContext.Activity.ReplyToId);
@@ -56,7 +57,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
 
-            string newReaction = $"You reacted with to the following message: '{turnContext.Activity.ReplyToId}' in the conversation ID: '{turnContext.Activity.Conversation.Id}'.";
+            string newReaction = $"You reacted with to the following message: '{turnContext.Activity.ReplyToId}' in the conversation Name: '{turnContext.Activity.Conversation.Name}'.";
             Activity replyActivity = MessageFactory.Text(newReaction);
             await turnContext.SendActivityAsync(replyActivity, cancellationToken);
 
