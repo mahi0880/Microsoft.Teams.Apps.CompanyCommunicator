@@ -52,12 +52,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             telemetryProperties.Add("username", turnContext.Activity.From.Name);
             telemetryProperties.Add("Id", turnContext.Activity.ReplyToId);
 
-            telemetry.TrackEvent(turnContext.Activity.ReplyToId, telemetryProperties);
+            telemetry.TrackEvent(turnContext.Activity.Conversation.Id, telemetryProperties);
 
             await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
-            await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
 
-            string newReaction = $"User: '{turnContext.Activity.From.Name}' reacted to the following message: '{turnContext.Activity.ReplyToId}' in the conversation ID: '{turnContext.Activity.Conversation.Id}'.";
+            string newReaction = $"You reacted with to the following message: '{turnContext.Activity.ReplyToId}' in the conversation ID: '{turnContext.Activity.Conversation.Id}'.";
             Activity replyActivity = MessageFactory.Text(newReaction);
             await turnContext.SendActivityAsync(replyActivity, cancellationToken);
 
