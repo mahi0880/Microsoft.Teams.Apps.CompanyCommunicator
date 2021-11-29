@@ -48,7 +48,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     CancellationToken cancellationToken)
         {
 
-            ]
+            
             Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
             telemetryProperties.Add("username", turnContext.Activity.From.Name);
             telemetryProperties.Add("Id", turnContext.Activity.ReplyToId);
