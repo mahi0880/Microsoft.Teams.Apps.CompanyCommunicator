@@ -54,6 +54,15 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             string messageId = turnContext.Activity.ReplyToId;
             string filter = $"RowKey eq '{userId}' and MessageId eq '{messageId}'";
 
+            Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
+            telemetryProperties.Add("Filter", filter);
+            telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
+            telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
+            telemetryProperties.Add("# of Reaction Added", turnContext.Activity.ReactionsAdded.Count.ToString());
+            telemetryProperties.Add("# of Reaction Removed", turnContext.Activity.ReactionsRemoved.Count.ToString());
+            telemetryProperties.Add("ReplyToId", messageId);
+            this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
+
             try
             {
                 var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
@@ -63,18 +72,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             }
             catch (Exception ex)
             {
-
                 await turnContext.SendActivityAsync($"failed to interact with the notification repo, {ex.Message}");
             }
 
-            Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
-            telemetryProperties.Add("Filter", filter);
-            telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
-            telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
-            telemetryProperties.Add("# of Reaction Added", turnContext.Activity.ReactionsAdded.Count.ToString());
-            telemetryProperties.Add("# of Reaction Removed", turnContext.Activity.ReactionsRemoved.Count.ToString());
-            telemetryProperties.Add("ReplyToId", messageId);
-            this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
             await base.OnReactionsAddedAsync(messageReactions, turnContext, cancellationToken);
         }
 
