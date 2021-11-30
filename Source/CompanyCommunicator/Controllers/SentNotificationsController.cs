@@ -220,6 +220,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 CreatedDateTime = notificationEntity.CreatedDate,
                 SentDate = notificationEntity.SentDate,
                 Succeeded = notificationEntity.Succeeded,
+                MessageReactionTimes = 10,
                 Failed = notificationEntity.Failed,
                 Unknown = this.GetUnknownCount(notificationEntity),
                 TeamNames = await this.teamDataRepository.GetTeamNamesByIdsAsync(notificationEntity.Teams),
