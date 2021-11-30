@@ -51,7 +51,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 
         protected override async Task OnReactionsAddedAsync(IList<MessageReaction> messageReactions, ITurnContext<IMessageReactionActivity> turnContext, CancellationToken cancellationToken)
         {
-            await turnContext.SendActivityAsync("Tracking your message reaction");
             string userId = turnContext.Activity.From.AadObjectId;
             string messageId = turnContext.Activity.ReplyToId;
 
@@ -63,7 +62,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
                         userId);
                 var messageIdFilter = TableQuery.GenerateFilterCondition("MessageId", QueryComparisons.Equal, messageId);
                 var filter = TableQuery.CombineFilters(rowKeyFilter, TableOperators.And, messageIdFilter);
-                await turnContext.SendActivityAsync($"Filter: {filter}");
 
                 Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
                 telemetryProperties.Add("Filter", filter);
