@@ -329,7 +329,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories
             return filter;
         }
 
-        private async Task<IList<T>> ExecuteQueryAsync(
+        protected async Task<IList<T>> ExecuteQueryAsync(
             TableQuery<T> query,
             int? count = null,
             CancellationToken ct = default)

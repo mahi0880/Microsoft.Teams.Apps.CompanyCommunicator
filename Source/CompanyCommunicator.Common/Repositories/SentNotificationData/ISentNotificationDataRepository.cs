@@ -5,6 +5,7 @@
 
 namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotificationData
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -20,5 +21,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotif
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public Task EnsureSentNotificationDataTableExistsAsync();
+
+        /// <summary>
+        /// Get items with filter.
+        /// </summary>
+        /// <param name="filter">Filter</param>
+        /// <returns>List of items</returns>
+        public Task<IEnumerable<SentNotificationDataEntity>> GetWithFilterAsync(string filter);
     }
 }
