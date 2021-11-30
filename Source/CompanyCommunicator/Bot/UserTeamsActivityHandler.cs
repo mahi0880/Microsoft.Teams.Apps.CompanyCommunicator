@@ -54,10 +54,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
         {
             string userId = turnContext.Activity.From.AadObjectId;
             string messageId = turnContext.Activity.ReplyToId;
+            string filter = $"RowKey eq '{userId}' and MessageId eq '{messageId}'";
 
             try
             {
-                var result = await this.sentNotificationDataRepository.GetWithFilterAsync($"RowKey  eq '{userId}' and MessageId eq '{messageId}'");
+                var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
                 var entity = result.First();
                 entity.MessageReaction = entity.MessageReaction + turnContext.Activity.ReactionsAdded.Count - turnContext.Activity.ReactionsRemoved.Count;
                 await this.sentNotificationDataRepository.InsertOrMergeAsync(entity);
@@ -69,6 +70,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             }
 
             Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
+            telemetryProperties.Add("Filter", filter);
             telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
             telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
             telemetryProperties.Add("# of Reaction Added", turnContext.Activity.ReactionsAdded.Count.ToString());
