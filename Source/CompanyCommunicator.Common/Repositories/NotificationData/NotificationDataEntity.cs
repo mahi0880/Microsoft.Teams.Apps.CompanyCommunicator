@@ -27,6 +27,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.Notificat
         public string Id { get; set; }
 
         /// <summary>
+        /// Gets or sets the # of message reaction.
+        /// </summary>
+        public int MessageReactionCount { get; set; }
+
+        /// <summary>
         /// Gets or sets the title text of the notification's content.
         /// </summary>
         public string Title { get; set; }
