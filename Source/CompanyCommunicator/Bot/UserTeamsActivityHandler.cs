@@ -17,6 +17,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     using System.Collections.Generic;
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotificationData;
     using System.Linq;
+    using Microsoft.Azure.Cosmos.Table;
 
     /// <summary>
     /// Company Communicator User Bot.
@@ -53,18 +54,24 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             await turnContext.SendActivityAsync("Tracking your message reaction");
             string userId = turnContext.Activity.From.AadObjectId;
             string messageId = turnContext.Activity.ReplyToId;
-            string filter = $"RowKey eq '{userId}' and MessageId eq '{messageId}'";
-
-            Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
-            telemetryProperties.Add("Filter", filter);
-            telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
-            telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
-            telemetryProperties.Add("ReplyToId", messageId);
-            this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
 
             try
             {
+                var rowKeyFilter = TableQuery.GenerateFilterCondition(
+                        nameof(TableEntity.RowKey),
+                        QueryComparisons.Equal,
+                        userId);
+                var messageIdFilter = TableQuery.GenerateFilterCondition("MessageId", QueryComparisons.Equal, messageId);
+                var filter = TableQuery.CombineFilters(rowKeyFilter, TableOperators.And, messageIdFilter);
                 await turnContext.SendActivityAsync($"Filter: {filter}");
+
+                Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
+                telemetryProperties.Add("Filter", filter);
+                telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
+                telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
+                telemetryProperties.Add("ReplyToId", messageId);
+                this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
+
                 var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
                 var entity = result.First();
                 entity.MessageReaction = 1;
