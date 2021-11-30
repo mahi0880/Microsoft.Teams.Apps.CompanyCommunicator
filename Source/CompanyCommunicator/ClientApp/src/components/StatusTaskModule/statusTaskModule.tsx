@@ -125,7 +125,7 @@ class StatusTaskModule extends React.Component<StatusTaskModuleProps, IStatusSta
             response.data.sendingStartedDate = formatDate(response.data.sendingStartedDate);
             response.data.sentDate = formatDate(response.data.sentDate);
             response.data.succeeded = formatNumber(response.data.succeeded);
-            response.data.messageReactionTimes = 10;
+            response.data.messageReactionTimes = formatNumber(response.data.MessageReactionTimes);
             response.data.failed = formatNumber(response.data.failed);
             response.data.unknown = response.data.unknown && formatNumber(response.data.unknown);
             this.setState({
@@ -178,7 +178,7 @@ class StatusTaskModule extends React.Component<StatusTaskModuleProps, IStatusSta
                                                 </>
                                             }
                                             <br />
-                                            <label>{this.localize("Failure", { "FailureCount": this.state.message.messageReactionTimes })}</label>
+                                            <label>{this.localize("Reaction", { "ReactionCount": this.state.message.messageReactionTimes })}</label>
                                         </div>
                                         <div className="contentField">
                                             {this.renderAudienceSelection()}
