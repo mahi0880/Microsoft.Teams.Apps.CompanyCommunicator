@@ -62,6 +62,7 @@
   "Results": "תוצאות",
   "Success": "הצלחה: {{SuccessCount}}",
   "Failure": "כשל : {{FailureCount}}",
+  "Reaction": "Reaction : {{ReactionCount}}",
   "Unknown": "לא ידוע : {{UnknownCount}}",
   "Throttled": "מווסת :",
   "TooltipSuccess": "הצלחה",

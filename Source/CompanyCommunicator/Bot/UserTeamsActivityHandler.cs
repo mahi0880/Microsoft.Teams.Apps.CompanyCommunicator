@@ -49,6 +49,40 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             await turnContext.SendActivityAsync(autoReplyMessage);
         }
 
+        protected override async Task OnReactionsRemovedAsync(IList<MessageReaction> messageReactions, ITurnContext<IMessageReactionActivity> turnContext, CancellationToken cancellationToken)
+        {
+            string userId = turnContext.Activity.From.AadObjectId;
+            string messageId = turnContext.Activity.ReplyToId;
+
+            try
+            {
+                var rowKeyFilter = TableQuery.GenerateFilterCondition(
+                        nameof(TableEntity.RowKey),
+                        QueryComparisons.Equal,
+                        userId);
+                var messageIdFilter = TableQuery.GenerateFilterCondition("MessageId", QueryComparisons.Equal, messageId);
+                var filter = TableQuery.CombineFilters(rowKeyFilter, TableOperators.And, messageIdFilter);
+
+                Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
+                telemetryProperties.Add("Filter", filter);
+                telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
+                telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
+                telemetryProperties.Add("ReplyToId", messageId);
+                this.telemetry.TrackEvent("MessageReactionRemoved", telemetryProperties);
+
+                var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
+                var entity = result.First();
+                entity.MessageReaction = 0;
+                await this.sentNotificationDataRepository.InsertOrMergeAsync(entity);
+            }
+            catch (Exception ex)
+            {
+                await turnContext.SendActivityAsync($"MessageReactionRemoved: failed to interact with the notification repo, {ex.Message}");
+            }
+
+            await base.OnReactionsRemovedAsync(messageReactions, turnContext, cancellationToken);
+        }
+
         protected override async Task OnReactionsAddedAsync(IList<MessageReaction> messageReactions, ITurnContext<IMessageReactionActivity> turnContext, CancellationToken cancellationToken)
         {
             string userId = turnContext.Activity.From.AadObjectId;
@@ -68,7 +102,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
                 telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
                 telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
                 telemetryProperties.Add("ReplyToId", messageId);
-                this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
+                this.telemetry.TrackEvent("MessageReactionAdded", telemetryProperties);
 
                 var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
                 var entity = result.First();
@@ -77,7 +111,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             }
             catch (Exception ex)
             {
-                await turnContext.SendActivityAsync($"failed to interact with the notification repo, {ex.Message}");
+                await turnContext.SendActivityAsync($"MessageReactionAdded: failed to interact with the notification repo, {ex.Message}");
             }
 
             await base.OnReactionsAddedAsync(messageReactions, turnContext, cancellationToken);

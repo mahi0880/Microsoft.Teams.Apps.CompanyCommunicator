@@ -62,6 +62,7 @@
   "Results": "_ЯэsµlтsЍ_",
   "Success": "_Sµ©©эss : {{SuccessCount}}Ѝѝцз_",
   "Failure": "_Fдїlцґё : {{FailureCount}}Ѝѝцз_",
+  "Reaction": "Reaction : {{ReactionCount}}",
   "Unknown": "_Циклюши : {{UnknownCount}}Ѝѝцз_",
   "Throttled": "_Ћћґфттlёd : Ѝѝ_",
   "TooltipSuccess": "_Sµ©©эssЍ_",
