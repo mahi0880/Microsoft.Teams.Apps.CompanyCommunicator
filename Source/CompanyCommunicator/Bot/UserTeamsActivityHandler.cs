@@ -42,14 +42,6 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             this.sentNotificationDataRepository = sentNotificationDataRepository ?? throw new ArgumentNullException(nameof(sentNotificationDataRepository));
         }
 
-        public override Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
-        {
-            string newNotification = $"You're receiving an notification, {turnContext.Activity.Text}";
-            turnContext.SendActivityAsync(newNotification);
-            return base.OnTurnAsync(turnContext, cancellationToken);
-        }
-
-
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             string autoReplyMessage = "Thank you for your message. Please reach out to <a href='mailto:feedback@hearst.com'>feedback@hearst.com</a> with any questions.";
@@ -60,14 +52,14 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     ITurnContext<IMessageReactionActivity> turnContext,
     CancellationToken cancellationToken)
         {
-            string userId = turnContext.Activity.From.Id;
+            string userId = turnContext.Activity.From.AadObjectId;
             string messageId = turnContext.Activity.ReplyToId;
 
             try
             {
-                var result = await this.sentNotificationDataRepository.GetWithFilterAsync($"UserId eq '{userId}' and MessageId eq '{messageId}'");
+                var result = await this.sentNotificationDataRepository.GetWithFilterAsync($"RowKey  eq '{userId}' and MessageId eq '{messageId}'");
                 var entity = result.First();
-                entity.MessageReaction++;
+                entity.MessageReaction = entity.MessageReaction + turnContext.Activity.ReactionsAdded.Count - turnContext.Activity.ReactionsRemoved.Count;
                 await this.sentNotificationDataRepository.InsertOrMergeAsync(entity);
             }
             catch (Exception ex)
@@ -77,8 +69,10 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             }
 
             Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
-            telemetryProperties.Add("AAD object", turnContext.Activity.From.AadObjectId);
-            telemetryProperties.Add("From Id", userId);
+            telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
+            telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
+            telemetryProperties.Add("# of Reaction Added", turnContext.Activity.ReactionsAdded.Count.ToString());
+            telemetryProperties.Add("# of Reaction Removed", turnContext.Activity.ReactionsRemoved.Count.ToString());
             telemetryProperties.Add("ReplyToId", messageId);
             this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
 
