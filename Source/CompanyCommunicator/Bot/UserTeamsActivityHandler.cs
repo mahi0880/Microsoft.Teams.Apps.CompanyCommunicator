@@ -48,9 +48,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             await turnContext.SendActivityAsync(autoReplyMessage);
         }
 
-        protected override async Task OnMessageReactionActivityAsync(
-    ITurnContext<IMessageReactionActivity> turnContext,
-    CancellationToken cancellationToken)
+        protected override async Task OnReactionsAddedAsync(IList<MessageReaction> messageReactions, ITurnContext<IMessageReactionActivity> turnContext, CancellationToken cancellationToken)
         {
             string userId = turnContext.Activity.From.AadObjectId;
             string messageId = turnContext.Activity.ReplyToId;
@@ -60,7 +58,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             {
                 var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
                 var entity = result.First();
-                entity.MessageReaction = entity.MessageReaction + turnContext.Activity.ReactionsAdded.Count - turnContext.Activity.ReactionsRemoved.Count;
+                entity.MessageReaction = 1;
                 await this.sentNotificationDataRepository.InsertOrMergeAsync(entity);
             }
             catch (Exception ex)
@@ -77,9 +75,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             telemetryProperties.Add("# of Reaction Removed", turnContext.Activity.ReactionsRemoved.Count.ToString());
             telemetryProperties.Add("ReplyToId", messageId);
             this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
-
-            await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
-
+            await base.OnReactionsAddedAsync(messageReactions, turnContext, cancellationToken);
         }
 
         /// <summary>
