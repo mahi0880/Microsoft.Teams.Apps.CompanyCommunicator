@@ -50,6 +50,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
 
         protected override async Task OnReactionsAddedAsync(IList<MessageReaction> messageReactions, ITurnContext<IMessageReactionActivity> turnContext, CancellationToken cancellationToken)
         {
+            await turnContext.SendActivityAsync("Tracking your message reaction");
             string userId = turnContext.Activity.From.AadObjectId;
             string messageId = turnContext.Activity.ReplyToId;
             string filter = $"RowKey eq '{userId}' and MessageId eq '{messageId}'";
@@ -58,13 +59,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             telemetryProperties.Add("Filter", filter);
             telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
             telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
-            telemetryProperties.Add("# of Reaction Added", turnContext.Activity.ReactionsAdded.Count.ToString());
-            telemetryProperties.Add("# of Reaction Removed", turnContext.Activity.ReactionsRemoved.Count.ToString());
             telemetryProperties.Add("ReplyToId", messageId);
             this.telemetry.TrackEvent("MessageReaction", telemetryProperties);
 
             try
             {
+                await turnContext.SendActivityAsync($"Filter: {filter}");
                 var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
                 var entity = result.First();
                 entity.MessageReaction = 1;
