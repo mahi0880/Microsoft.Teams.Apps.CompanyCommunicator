@@ -179,9 +179,8 @@ class StatusTaskModule extends React.Component<StatusTaskModuleProps, IStatusSta
                                                 <br />
                                                 </>
                                             }
-                                            <label>{this.localize("Reaction", { "ReactionCount": this.state.message.messageReactionTimes })}</label>
+                                            <label>Reaction : {this.state.message.messageReactionTimes}</label>
                                             <br />
-                                            <label>{this.localize("Success", { "SuccessCount": this.state.message.messageReactionTimes })}</label>
                                         </div>
                                         <div className="contentField">
                                             {this.renderAudienceSelection()}
