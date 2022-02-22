@@ -13,6 +13,7 @@ type Notification = {
     sendingStartedDate: string,
     sendingDuration: string,
     succeeded: number,
+    messageReactionTimes: number,
     throttled: number,
     title: string,
     totalMessageCount: number,

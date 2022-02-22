@@ -15,6 +15,9 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
     using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.NotificationData;
     using Microsoft.ApplicationInsights;
     using System.Collections.Generic;
+    using Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotificationData;
+    using System.Linq;
+    using Microsoft.Azure.Cosmos.Table;
 
     /// <summary>
     /// Company Communicator User Bot.
@@ -27,23 +30,18 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
         private static readonly string TeamRenamedEventType = "teamRenamed";
 
         private readonly TeamsDataCapture teamsDataCapture;
+        private readonly ISentNotificationDataRepository sentNotificationDataRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserTeamsActivityHandler"/> class.
         /// </summary>
         /// <param name="teamsDataCapture">Teams data capture service.</param>
-        public UserTeamsActivityHandler(TeamsDataCapture teamsDataCapture)
+        /// <param name="sentNotificationDataRepository">Sent notification data.</param>
+        public UserTeamsActivityHandler(TeamsDataCapture teamsDataCapture, ISentNotificationDataRepository sentNotificationDataRepository)
         {
             this.teamsDataCapture = teamsDataCapture ?? throw new ArgumentNullException(nameof(teamsDataCapture));
+            this.sentNotificationDataRepository = sentNotificationDataRepository ?? throw new ArgumentNullException(nameof(sentNotificationDataRepository));
         }
-
-        public override Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
-        {
-            string newNotification = $"You're receiving an notification, {turnContext.Activity.Text}";
-            turnContext.SendActivityAsync(newNotification);
-            return base.OnTurnAsync(turnContext, cancellationToken);
-        }
-
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -51,29 +49,72 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Bot
             await turnContext.SendActivityAsync(autoReplyMessage);
         }
 
-        protected override async Task OnMessageReactionActivityAsync(
-    ITurnContext<IMessageReactionActivity> turnContext,
-    CancellationToken cancellationToken)
+        protected override async Task OnReactionsRemovedAsync(IList<MessageReaction> messageReactions, ITurnContext<IMessageReactionActivity> turnContext, CancellationToken cancellationToken)
         {
+            string userId = turnContext.Activity.From.AadObjectId;
+            string messageId = turnContext.Activity.ReplyToId;
 
-            
-            Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
-          
-            telemetryProperties.Add("username", turnContext.Activity.From.Name);
-            telemetryProperties.Add("Id", turnContext.Activity.Id);
-            telemetryProperties.Add("ReplyToId", turnContext.Activity.ReplyToId);
-            telemetryProperties.Add("ChannelId", turnContext.Activity.ChannelId);
-            telemetryProperties.Add("ServiceUrl", turnContext.Activity.ServiceUrl);
-            telemetryProperties.Add("Recipient.Name", turnContext.Activity.Recipient.Name);
-            telemetryProperties.Add("Recipient.ID", turnContext.Activity.Recipient.Id);
-            telemetry.TrackEvent(turnContext.Activity.ReplyToId, telemetryProperties);
+            try
+            {
+                var rowKeyFilter = TableQuery.GenerateFilterCondition(
+                        nameof(TableEntity.RowKey),
+                        QueryComparisons.Equal,
+                        userId);
+                var messageIdFilter = TableQuery.GenerateFilterCondition("MessageId", QueryComparisons.Equal, messageId);
+                var filter = TableQuery.CombineFilters(rowKeyFilter, TableOperators.And, messageIdFilter);
 
-            await base.OnMessageReactionActivityAsync(turnContext, cancellationToken);
+                Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
+                telemetryProperties.Add("Filter", filter);
+                telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
+                telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
+                telemetryProperties.Add("ReplyToId", messageId);
+                this.telemetry.TrackEvent("MessageReactionRemoved", telemetryProperties);
 
-            //string newReaction = $"You reacted with to the following message: '{turnContext.Activity.ReplyToId}' in the conversation Name: '{turnContext.Activity.Conversation.Name}'.";
-            //Activity replyActivity = MessageFactory.Text(newReaction);
-            //await turnContext.SendActivityAsync(replyActivity, cancellationToken);
+                var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
+                var entity = result.First();
+                entity.MessageReaction = 0;
+                await this.sentNotificationDataRepository.InsertOrMergeAsync(entity);
+            }
+            catch (Exception ex)
+            {
+                await turnContext.SendActivityAsync($"MessageReactionRemoved: failed to interact with the notification repo, {ex.Message}");
+            }
 
+            await base.OnReactionsRemovedAsync(messageReactions, turnContext, cancellationToken);
+        }
+
+        protected override async Task OnReactionsAddedAsync(IList<MessageReaction> messageReactions, ITurnContext<IMessageReactionActivity> turnContext, CancellationToken cancellationToken)
+        {
+            string userId = turnContext.Activity.From.AadObjectId;
+            string messageId = turnContext.Activity.ReplyToId;
+
+            try
+            {
+                var rowKeyFilter = TableQuery.GenerateFilterCondition(
+                        nameof(TableEntity.RowKey),
+                        QueryComparisons.Equal,
+                        userId);
+                var messageIdFilter = TableQuery.GenerateFilterCondition("MessageId", QueryComparisons.Equal, messageId);
+                var filter = TableQuery.CombineFilters(rowKeyFilter, TableOperators.And, messageIdFilter);
+
+                Dictionary<string, string> telemetryProperties = new Dictionary<string, string>();
+                telemetryProperties.Add("Filter", filter);
+                telemetryProperties.Add("From.AAD object", turnContext.Activity.From.AadObjectId);
+                telemetryProperties.Add("From.Id", turnContext.Activity.From.Id);
+                telemetryProperties.Add("ReplyToId", messageId);
+                this.telemetry.TrackEvent("MessageReactionAdded", telemetryProperties);
+
+                var result = await this.sentNotificationDataRepository.GetWithFilterAsync(filter);
+                var entity = result.First();
+                entity.MessageReaction = 1;
+                await this.sentNotificationDataRepository.InsertOrMergeAsync(entity);
+            }
+            catch (Exception ex)
+            {
+                await turnContext.SendActivityAsync($"MessageReactionAdded: failed to interact with the notification repo, {ex.Message}");
+            }
+
+            await base.OnReactionsAddedAsync(messageReactions, turnContext, cancellationToken);
         }
 
         /// <summary>

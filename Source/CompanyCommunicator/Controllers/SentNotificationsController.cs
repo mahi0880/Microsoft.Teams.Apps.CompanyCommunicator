@@ -220,6 +220,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 CreatedDateTime = notificationEntity.CreatedDate,
                 SentDate = notificationEntity.SentDate,
                 Succeeded = notificationEntity.Succeeded,
+                MessageReactionTimes = await this.GetMessageReactionTimes(notificationEntity.Id),
                 Failed = notificationEntity.Failed,
                 Unknown = this.GetUnknownCount(notificationEntity),
                 TeamNames = await this.teamDataRepository.GetTeamNamesByIdsAsync(notificationEntity.Teams),
@@ -289,6 +290,12 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Controllers
                 // Failed to fetch app id.
                 this.logger.LogError(exception, $"Failed to get catalog app id. Error message: {exception.Message}.");
             }
+        }
+
+        private async Task<int> GetMessageReactionTimes(string notificationId)
+        {
+            var result = await this.sentNotificationDataRepository.GetAllAsync(notificationId);
+            return result.Sum(i => i.MessageReaction);
         }
     }
 }

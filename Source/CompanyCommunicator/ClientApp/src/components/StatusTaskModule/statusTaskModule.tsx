@@ -31,6 +31,7 @@ export interface IMessage {
     responses?: string;
     succeeded?: string;
     failed?: string;
+    messageReactionTimes?: string;
     unknown?: string;
     sentDate?: string;
     imageLink?: string;
@@ -124,6 +125,7 @@ class StatusTaskModule extends React.Component<StatusTaskModuleProps, IStatusSta
             response.data.sendingStartedDate = formatDate(response.data.sendingStartedDate);
             response.data.sentDate = formatDate(response.data.sentDate);
             response.data.succeeded = formatNumber(response.data.succeeded);
+            response.data.messageReactionTimes = formatNumber(response.data.messageReactionTimes);
             response.data.failed = formatNumber(response.data.failed);
             response.data.unknown = response.data.unknown && formatNumber(response.data.unknown);
             this.setState({
@@ -173,9 +175,12 @@ class StatusTaskModule extends React.Component<StatusTaskModuleProps, IStatusSta
                                             <br />
                                             {this.state.message.unknown &&
                                                 <>
-                                                    <label>{this.localize("Unknown", { "UnknownCount": this.state.message.unknown })}</label>
+                                                <label>{this.localize("Unknown", { "UnknownCount": this.state.message.unknown })}</label>
+                                                <br />
                                                 </>
                                             }
+                                            <label>Reaction : {this.state.message.messageReactionTimes}</label>
+                                            <br />
                                         </div>
                                         <div className="contentField">
                                             {this.renderAudienceSelection()}

@@ -44,6 +44,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Models
         public int Failed { get; set; }
 
         /// <summary>
+        /// Gets or sets number of message reaction.
+        /// </summary>
+        public int MessageReactionTimes { get; set; }
+
+        /// <summary>
         /// Gets or sets the number of recipients whose delivery status is unknown.
         /// </summary>
         public int? Unknown { get; set; }

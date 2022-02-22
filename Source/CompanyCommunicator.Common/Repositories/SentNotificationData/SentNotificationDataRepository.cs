@@ -5,7 +5,10 @@
 
 namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotificationData
 {
+    using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
@@ -38,6 +41,21 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Common.Repositories.SentNotif
             if (!exists)
             {
                 await this.Table.CreateAsync();
+            }
+        }
+
+        public async Task<IEnumerable<SentNotificationDataEntity>> GetWithFilterAsync(string filter)
+        {
+            try
+            {
+                var query = new TableQuery<SentNotificationDataEntity>().Where(filter);
+                var entities = await this.ExecuteQueryAsync(query);
+                return entities;
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, ex.Message);
+                throw;
             }
         }
     }

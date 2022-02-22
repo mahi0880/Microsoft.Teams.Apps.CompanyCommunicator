@@ -19,6 +19,11 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Models
         public DateTime? SendingStartedDate { get; set; }
 
         /// <summary>
+        /// Gets or sets message reaction times.
+        /// </summary>
+        public int MessageReactionTimes { get; set; }
+
+        /// <summary>
         /// Gets or sets the Sent DateTime value.
         /// </summary>
         public DateTime? SentDate { get; set; }

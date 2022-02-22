@@ -62,6 +62,7 @@
   "Results": "Results",
   "Success": "Success : {{SuccessCount}}",
   "Failure": "Failure : {{FailureCount}}",
+  "Reaction": "Reaction : {{ReactionCount}}",
   "Unknown": "Unknown : {{UnknownCount}}",
   "Throttled": "Throttled : ",
   "TooltipSuccess": "Success",
